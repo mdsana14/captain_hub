@@ -1,0 +1,453 @@
+<!doctype html><html style="background:#fff"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Captain Hub</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow working column; tabbed tool (kit, leaderboard, funnel model). Utilitarian, scan-first. */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --fg: #12232b;
+  --muted: #55696f;
+  --line: #d3dde0;
+  --accent: #0a6e55;
+  --accent-fg: #ffffff;
+  --accent-soft: #dcf0ea;
+  --warn: #8a5a00;
+  --warn-soft: #fbefd0;
+  --bad: #a63a2a;
+  --bad-soft: #f8dfda;
+  --good: #1d6b3a;
+  --good-soft: #dcf0e2;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); line-height: 1.5;
+  font-size: 15px;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 30px; line-height: 1.1; }
+h2 { font-size: 20px; }
+h3 { font-size: 16px; }
+p { margin: 0; }
+.sub { color: var(--muted); max-width: 65ch; }
+.label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.banner { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn); border-radius: 6px; padding: 10px 14px; font-size: 14px; }
+header { display: flex; flex-direction: column; gap: 10px; }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tab { font: inherit; font-weight: 600; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 14px; cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.panel { display: flex; flex-direction: column; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+input[type="text"], input[type="number"], select {
+  font: inherit; color: var(--fg); background: #f3f6f7; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; min-width: 0;
+}
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+button.btn { font: inherit; font-weight: 600; border-radius: 6px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); }
+button.btn.ghost { background: transparent; color: var(--accent); }
+button.btn.small { padding: 4px 10px; font-size: 13px; }
+.code { font-family: var(--font-mono); font-size: 18px; background: var(--accent-soft); color: var(--accent); padding: 6px 12px; border-radius: 6px; display: inline-block; overflow-wrap: anywhere; }
+.msg { white-space: pre-wrap; background: #f3f6f7; border: 1px solid var(--line); border-radius: 6px; padding: 12px; font-size: 14px; overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.linkout { color: var(--accent); font-weight: 600; }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; display: inline-block; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.meter { height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--accent); }
+.lb { display: grid; grid-template-columns: 28px minmax(0, 1fr) 56px auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.lb:first-of-type { border-top: 0; }
+.lb .n { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; }
+.lb .who { display: flex; flex-direction: column; min-width: 0; }
+.lb .who small { color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+.rank { font-family: var(--font-display); font-weight: 700; color: var(--muted); }
+.big { font-family: var(--font-display); font-size: 40px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.ch { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: baseline; }
+.ch .val { font-family: var(--font-display); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.slider { display: flex; flex-direction: column; gap: 2px; }
+.slider .top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); gap: 8px; }
+.slider .top b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.note { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .meter > span { transition: width .3s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">Build Your First AI Project in 60 Minutes · 7-day registration campaign</span>
+    <h1>Captain Hub</h1>
+    <p class="sub">The toolkit a student captain uses to share the workshop, and the dashboard that shows whether the campaign is on pace for 500 registrations.</p>
+    <div class="banner"><strong>Prototype with sample data.</strong> Names, colleges and counts below are made up. Nothing is connected to a real form or sent anywhere, and no results are real.</div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Captain Hub sections">
+    <button class="tab" role="tab" id="tab-kit" aria-controls="panel-kit" aria-selected="true">Captain kit</button>
+    <button class="tab" role="tab" id="tab-lb" aria-controls="panel-lb" aria-selected="false">Leaderboard and pace</button>
+    <button class="tab" role="tab" id="tab-fn" aria-controls="panel-fn" aria-selected="false">Funnel model</button>
+  </div>
+
+  <!-- CAPTAIN KIT -->
+  <section class="panel" id="panel-kit" role="tabpanel" aria-labelledby="tab-kit">
+    <div class="card">
+      <h2>1. Get your code and link</h2>
+      <p class="sub">Each captain gets one unique code. Students who register through the captain's link carry that code into the form, so every registration is credited to the right person.</p>
+      <div class="grid2">
+        <div class="field"><label for="in-name">Captain name</label><input type="text" id="in-name" value="Asha Kumar"></div>
+        <div class="field"><label for="in-college">College</label><input type="text" id="in-college" value="Dummy College A"></div>
+        <div class="field"><label for="in-date">Workshop date and time</label><input type="text" id="in-date" value="[date and time to be confirmed]"></div>
+        <div class="field"><label for="in-form">Registration form link</label><input type="text" id="in-form" value="https://forms.gle/YOUR-FORM-LINK"></div>
+        <div class="field"><label for="in-entry">Referral field ID in the form</label><input type="text" id="in-entry" value="entry.0000000000"></div>
+      </div>
+      <div class="row">
+        <span class="label">Your code</span><span class="code" id="out-code"></span>
+        <button class="btn ghost small" data-copy="out-code">Copy code</button>
+      </div>
+      <div class="field"><label>Your personal link</label><div class="msg" id="out-link"></div></div>
+      <div class="row"><button class="btn small" data-copy="out-link">Copy link</button></div>
+      <p class="note">With a real Google Form, use Get pre-filled link, type XXXX in the referral field, and paste the entry ID shown in that link above.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Share it where you already talk to people</h2>
+      <p class="sub">Post once in each group you belong to and message a few friends directly. Do not add people to groups without asking, and do not send repeated reminders to the same group.</p>
+      <div class="field"><label for="in-variant">Message for</label>
+        <select id="in-variant">
+          <option value="group">A class or batch WhatsApp group</option>
+          <option value="dm">A friend, one to one</option>
+          <option value="club">A club head or faculty coordinator (email)</option>
+        </select>
+      </div>
+      <div class="msg" id="out-msg"></div>
+      <div class="row">
+        <button class="btn small" data-copy="out-msg">Copy message</button>
+        <a class="linkout" id="out-wa" href="#" target="_blank" rel="noopener">Open in WhatsApp</a>
+      </div>
+      <p class="note" id="copy-status" role="status"></p>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="panel" id="panel-lb" role="tabpanel" aria-labelledby="tab-lb" hidden>
+    <div class="card">
+      <div class="row between">
+        <h2>Campaign pace</h2>
+        <div class="field" style="flex-direction:row;align-items:center;gap:8px"><label for="in-day">Today is day</label>
+          <select id="in-day" style="width:auto"></select></div>
+      </div>
+      <div class="row" style="align-items:flex-end;gap:16px">
+        <div><div class="big" id="pace-total">0</div><div class="note">registrations (sample data)</div></div>
+        <div><div class="big" id="pace-target">0</div><div class="note">planned by end of this day</div></div>
+        <span class="pill" id="pace-pill"></span>
+      </div>
+      <div class="meter" aria-hidden="true"><span id="pace-bar" style="width:0"></span></div>
+      <p id="pace-advice" class="sub"></p>
+      <p class="note">Planned cumulative registrations by day: 20, 80, 160, 270, 370, 460, 500. These are planning targets, not benchmarks. Contingency rule: under 60% of target at the end of day 3 or day 5 triggers the fallback plan.</p>
+    </div>
+
+    <div class="card">
+      <div class="row between">
+        <h2>Captain leaderboard</h2>
+        <button class="btn ghost small" id="btn-reset">Reset sample data</button>
+      </div>
+      <p class="sub">Registrations are counted per referral code. In the real build this is a COUNTIF over the form responses sheet. The + button simulates a new registration for the demo.</p>
+      <div id="lb-list"></div>
+      <p class="note" id="lb-nocode"></p>
+      <p class="note">Rewards for the top three captains (₹200, ₹100, ₹100, digital voucher) are announced before the campaign starts. Captains are credited only for registrations with their own code.</p>
+    </div>
+  </section>
+
+  <!-- FUNNEL -->
+  <section class="panel" id="panel-fn" role="tabpanel" aria-labelledby="tab-fn" hidden>
+    <div class="card">
+      <h2>Funnel model</h2>
+      <p class="sub">Every number here is an assumption. Move a slider to see how much each one matters. Presets show a cautious, a base and a hopeful case.</p>
+      <div class="row">
+        <button class="btn ghost small" data-preset="cons">Conservative</button>
+        <button class="btn ghost small" data-preset="base">Base</button>
+        <button class="btn ghost small" data-preset="opt">Optimistic</button>
+      </div>
+      <div class="row" style="align-items:flex-end;gap:16px">
+        <div><div class="big" id="fn-total">0</div><div class="note">estimated registrations</div></div>
+        <span class="pill" id="fn-pill"></span>
+      </div>
+      <div class="meter" aria-hidden="true"><span id="fn-bar" style="width:0"></span></div>
+    </div>
+    <div class="card">
+      <h3>Plan vs model</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Channel in the plan</th><th>Plan target</th><th>Model estimate</th></tr></thead>
+          <tbody>
+            <tr><td>1. Student captains with unique codes</td><td>300</td><td id="pm-1">0</td></tr>
+            <tr><td>2. Opt-in communities, clubs and faculty</td><td>120</td><td id="pm-2">0</td></tr>
+            <tr><td>3. Short demo and personal posts (organic and small boost)</td><td>80</td><td id="pm-3">0</td></tr>
+            <tr><td>Bonus loop: registrants inviting friends</td><td>none</td><td id="pm-4">0</td></tr>
+            <tr><th>Total</th><th>500</th><th id="pm-t">0</th></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Targets are the plan. Estimates come from the sliders below, so a gap shows which assumption to test first.</p>
+    </div>
+    <div id="fn-channels" class="panel"></div>
+    <div class="card">
+      <h3>Budget (₹2,000 total)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>₹</th></tr></thead>
+          <tbody>
+            <tr><td>Optional boost for the best-performing demo post</td><td>1,200</td></tr>
+            <tr><td>Creative / data contingency</td><td>300</td></tr>
+            <tr><td>Reserve (spend only if needed)</td><td>500</td></tr>
+            <tr><td>Tools (Google Forms, Sheets, Canva free tier)</td><td>0</td></tr>
+            <tr><th>Total</th><th>2,000</th></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ---------- tabs ---------- */
+  var tabs = ['kit', 'lb', 'fn'];
+  function showTab(name) {
+    tabs.forEach(function (t) {
+      $('tab-' + t).setAttribute('aria-selected', String(t === name));
+      $('panel-' + t).hidden = t !== name;
+    });
+  }
+  tabs.forEach(function (t) { $('tab-' + t).addEventListener('click', function () { showTab(t); }); });
+
+  /* ---------- captain kit ---------- */
+  function makeCode(name) {
+    var first = (name || '').trim().split(/\s+/)[0] || 'NAME';
+    return 'CAP-' + first.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 8);
+  }
+  function currentLink() {
+    var base = $('in-form').value.trim();
+    var entry = $('in-entry').value.trim();
+    var sep = base.indexOf('?') >= 0 ? '&' : '?';
+    return base + sep + 'usp=pp_url&' + encodeURIComponent(entry).replace('%2E', '.') + '=' + makeCode($('in-name').value);
+  }
+  function currentMessage() {
+    var link = currentLink(), date = $('in-date').value.trim(), v = $('in-variant').value;
+    var name = $('in-name').value.trim() || 'a student captain';
+    if (v === 'group') {
+      return 'Free 1-hour workshop for final-year students: Build Your First AI Project in 60 Minutes.\n\n' +
+        'The session is designed to help you take a practical first step with AI. Check the official agenda for exact outcomes.\n' +
+        'When: ' + date + '\nRegister (takes about a minute): ' + link + '\n\n' +
+        'I am sharing this once. Reply here if you have questions.';
+    }
+    if (v === 'dm') {
+      return 'Hey, thought of you. There is a free 1-hour online workshop to explore a beginner-friendly AI project. Check the official agenda for exact outcomes.\n\n' +
+        'When: ' + date + '\nRegister here: ' + link + '\n\nTotally optional. Tell me if you would rather not get messages like this.';
+    }
+    return 'Subject: Free 60-minute AI project workshop for final-year students\n\n' +
+      'Hello,\n\nI am ' + name + ', a final-year student. NxtWave is running a free online workshop, "Build Your First AI Project in 60 Minutes", for final-year engineering students. The session is designed to help students take a practical first step with AI. Please confirm the official agenda for exact outcomes.\n\n' +
+      'If you think it would help students in your club or department, you are welcome to share this link: ' + link + '\n' +
+      'When: ' + date + '\n\nThank you for your time.\n' + name;
+  }
+  function renderKit() {
+    $('out-code').textContent = makeCode($('in-name').value);
+    $('out-link').textContent = currentLink();
+    var msg = currentMessage();
+    $('out-msg').textContent = msg;
+    $('out-wa').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  }
+  ['in-name', 'in-college', 'in-date', 'in-form', 'in-entry', 'in-variant'].forEach(function (id) {
+    $(id).addEventListener('input', renderKit);
+    $(id).addEventListener('change', renderKit);
+  });
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var el = $(b.getAttribute('data-copy')), text = el.textContent, status = $('copy-status');
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        status.textContent = 'Text selected. Press Ctrl+C or long-press to copy.';
+      }
+      try {
+        navigator.clipboard.writeText(text).then(function () { status.textContent = 'Copied.'; }, fallback);
+      } catch (e) { fallback(); }
+    });
+  });
+
+  /* ---------- leaderboard and pace ---------- */
+  var PLAN = [20, 80, 160, 270, 370, 460, 500];
+  var SAMPLE = [
+    { code: 'CAP-ASHA', name: 'Asha K.', college: 'Dummy College A', regs: 31 },
+    { code: 'CAP-RAVI', name: 'Ravi M.', college: 'Dummy College B', regs: 24 },
+    { code: 'CAP-MEERA', name: 'Meera S.', college: 'Dummy College C', regs: 19 },
+    { code: 'CAP-ARJUN', name: 'Arjun P.', college: 'Dummy College A', regs: 14 },
+    { code: 'CAP-NIKHIL', name: 'Nikhil R.', college: 'Dummy College D', regs: 11 },
+    { code: 'CAP-FATIMA', name: 'Fatima Z.', college: 'Dummy College B', regs: 8 },
+    { code: 'CAP-KARTHIK', name: 'Karthik V.', college: 'Dummy College E', regs: 5 },
+    { code: 'CAP-LAKSHMI', name: 'Lakshmi D.', college: 'Dummy College C', regs: 0 }
+  ];
+  var NOCODE_START = 20;
+  var caps, nocode, day = 3;
+
+  function resetData() {
+    caps = SAMPLE.map(function (c) { return { code: c.code, name: c.name, college: c.college, regs: c.regs }; });
+    nocode = NOCODE_START;
+  }
+  var dsel = $('in-day');
+  for (var i = 1; i <= 7; i++) { var o = document.createElement('option'); o.value = i; o.textContent = i; dsel.appendChild(o); }
+  dsel.value = '3';
+  dsel.addEventListener('change', function () { day = +dsel.value; renderLB(); });
+  $('btn-reset').addEventListener('click', function () { resetData(); renderLB(); });
+
+  function renderLB() {
+    var total = nocode; caps.forEach(function (c) { total += c.regs; });
+    var target = PLAN[day - 1];
+    var pct = total / target;
+    $('pace-total').textContent = total;
+    $('pace-target').textContent = target;
+    $('pace-bar').style.width = Math.min(100, Math.round(pct * 100)) + '%';
+    var pill = $('pace-pill'), advice = $('pace-advice');
+    pill.className = 'pill';
+    if (pct >= 0.9) {
+      pill.classList.add('good'); pill.textContent = 'On pace (' + Math.round(pct * 100) + '% of target)';
+      advice.textContent = 'Keep the current mix. Thank the captains who are driving registrations.';
+    } else if (pct >= 0.6) {
+      pill.classList.add('warn'); pill.textContent = 'Watch (' + Math.round(pct * 100) + '% of target)';
+      advice.textContent = 'Message the top captains personally, and check which share message gets the most sign-ups.';
+    } else {
+      pill.classList.add('bad'); pill.textContent = 'Behind (' + Math.round(pct * 100) + '% of target)';
+      advice.textContent = 'Contingency: drop the weakest channel, rewrite the headline, shorten the form, and spend the ₹500 reserve on the best-performing creative.';
+    }
+    var sorted = caps.slice().sort(function (a, b) { return b.regs - a.regs; });
+    var list = $('lb-list'); list.innerHTML = '';
+    var max = Math.max(1, sorted[0].regs);
+    sorted.forEach(function (c, idx) {
+      var row = document.createElement('div'); row.className = 'lb';
+      var rk = document.createElement('span'); rk.className = 'rank'; rk.textContent = idx + 1;
+      var who = document.createElement('div'); who.className = 'who';
+      var nm = document.createElement('strong'); nm.textContent = c.name + ' · ' + c.college;
+      var cd = document.createElement('small'); cd.textContent = c.code;
+      var bar = document.createElement('div'); bar.className = 'meter'; bar.style.marginTop = '4px';
+      var sp = document.createElement('span'); sp.style.width = Math.round(c.regs / max * 100) + '%'; bar.appendChild(sp);
+      who.appendChild(nm); who.appendChild(cd); who.appendChild(bar);
+      var n = document.createElement('span'); n.className = 'n'; n.textContent = c.regs;
+      var add = document.createElement('button'); add.className = 'btn ghost small'; add.textContent = '+1';
+      add.setAttribute('aria-label', 'Add one registration for ' + c.name);
+      add.addEventListener('click', function () { c.regs += 1; renderLB(); });
+      row.appendChild(rk); row.appendChild(who); row.appendChild(n); row.appendChild(add);
+      list.appendChild(row);
+    });
+    $('lb-nocode').textContent = nocode + ' registrations came without a code (organic posts, club shares and the paid boost).';
+  }
+
+  /* ---------- funnel model ---------- */
+  var FIELDS = [
+    { ch: 'A', title: 'Channel 1 · Student captain referrals', params: [
+      ['rec', 'Captains recruited', 10, 120, 1, ''],
+      ['act', 'Share who actually post', 10, 90, 1, '%'],
+      ['rch', 'Unique students each reaches', 20, 200, 5, ''],
+      ['cv', 'Of those, share who register', 2, 25, 1, '%']] },
+    { ch: 'C', title: 'Channel 2 · Club, faculty and placement-cell requests', params: [
+      ['sent', 'Requests sent', 10, 100, 5, ''],
+      ['rep', 'Share who share the poster', 2, 30, 1, '%'],
+      ['rch', 'Students reached per share', 30, 250, 10, ''],
+      ['cv', 'Of those, share who register', 2, 20, 1, '%']] },
+    { ch: 'B', title: 'Channel 3 · Organic posts (LinkedIn, Instagram, student groups)', params: [
+      ['rch', 'Total reach', 3000, 40000, 500, ''],
+      ['ctr', 'Click-through rate', 0.5, 5, 0.1, '%'],
+      ['cv', 'Landing-to-register rate', 8, 40, 1, '%']] },
+    { ch: 'D', title: 'Channel 3 · Small paid boost (₹1,200)', params: [
+      ['cpc', 'Cost per click, ₹', 3, 20, 1, ''],
+      ['cv', 'Landing-to-register rate', 8, 40, 1, '%']] },
+    { ch: 'E', title: 'Bonus loop · Registrants inviting friends', params: [
+      ['sh', 'Registrants who share', 5, 60, 1, '%'],
+      ['inv', 'Friends invited per sharer', 1, 6, 1, ''],
+      ['cv', 'Invited friends who register', 2, 25, 1, '%']] }
+  ];
+  var PRESETS = {
+    cons: { A: [50, 40, 70, 10], B: [12000, 2, 20], C: [50, 8, 80, 8], D: [10, 22], E: [25, 2, 8] },
+    base: { A: [60, 50, 80, 12], B: [15000, 2, 25], C: [50, 10, 100, 10], D: [8, 25], E: [30, 3, 10] },
+    opt:  { A: [60, 55, 90, 13], B: [18000, 2.5, 25], C: [50, 12, 110, 10], D: [7, 25], E: [30, 3, 10] }
+  };
+  var BOOST = 1200;
+  var vals = {};
+  function setPreset(p) {
+    FIELDS.forEach(function (f) { vals[f.ch] = PRESETS[p][f.ch].slice(); });
+    buildFunnel(); calcFunnel();
+  }
+  function buildFunnel() {
+    var host = $('fn-channels'); host.innerHTML = '';
+    FIELDS.forEach(function (f) {
+      var card = document.createElement('div'); card.className = 'card';
+      var head = document.createElement('div'); head.className = 'ch';
+      var t = document.createElement('h3'); t.textContent = f.title;
+      var v = document.createElement('span'); v.className = 'val'; v.id = 'val-' + f.ch;
+      head.appendChild(t); head.appendChild(v); card.appendChild(head);
+      var grid = document.createElement('div'); grid.className = 'grid2';
+      f.params.forEach(function (p, i) {
+        var s = document.createElement('div'); s.className = 'slider';
+        var top = document.createElement('div'); top.className = 'top';
+        var l = document.createElement('label'); l.setAttribute('for', 'sl-' + f.ch + i); l.textContent = p[1];
+        var b = document.createElement('b'); b.id = 'sv-' + f.ch + i;
+        top.appendChild(l); top.appendChild(b);
+        var r = document.createElement('input'); r.type = 'range'; r.id = 'sl-' + f.ch + i;
+        r.min = p[2]; r.max = p[3]; r.step = p[4]; r.value = vals[f.ch][i];
+        r.addEventListener('input', function () { vals[f.ch][i] = +r.value; calcFunnel(); });
+        s.appendChild(top); s.appendChild(r); grid.appendChild(s);
+      });
+      card.appendChild(grid); host.appendChild(card);
+    });
+  }
+  function calcFunnel() {
+    var a = vals.A, b = vals.B, c = vals.C, d = vals.D, e = vals.E;
+    var A = a[0] * a[1] / 100 * a[2] * a[3] / 100;
+    var B = b[0] * b[1] / 100 * b[2] / 100;
+    var C = c[0] * c[1] / 100 * c[2] * c[3] / 100;
+    var D = BOOST / d[0] * d[1] / 100;
+    var E = (A + B + C + D) * e[0] / 100 * e[1] * e[2] / 100;
+    var res = { A: A, B: B, C: C, D: D, E: E };
+    var total = A + B + C + D + E;
+    FIELDS.forEach(function (f) {
+      $('val-' + f.ch).textContent = '≈ ' + Math.round(res[f.ch]);
+      f.params.forEach(function (p, i) {
+        var x = vals[f.ch][i];
+        $('sv-' + f.ch + i).textContent = (p[0] === 'cpc' ? '₹' : '') + (p[5] === '%' ? x + '%' : x.toLocaleString('en-IN'));
+        $('sl-' + f.ch + i).value = x;
+      });
+    });
+    $('pm-1').textContent = Math.round(A); $('pm-2').textContent = Math.round(C);
+    $('pm-3').textContent = Math.round(B + D); $('pm-4').textContent = Math.round(E);
+    var t = Math.round(total); $('pm-t').textContent = t;
+    $('fn-total').textContent = t;
+    $('fn-bar').style.width = Math.min(100, Math.round(total / 5)) + '%';
+    var pill = $('fn-pill'); pill.className = 'pill';
+    if (t >= 500) { pill.classList.add('good'); pill.textContent = 'Meets the 500 goal'; }
+    else if (t >= 400) { pill.classList.add('warn'); pill.textContent = (500 - t) + ' short of 500'; }
+    else { pill.classList.add('bad'); pill.textContent = (500 - t) + ' short of 500'; }
+  }
+  document.querySelectorAll('[data-preset]').forEach(function (btn) {
+    btn.addEventListener('click', function () { setPreset(btn.getAttribute('data-preset')); });
+  });
+
+  /* ---------- boot ---------- */
+  resetData(); renderKit(); renderLB(); setPreset('base');
+})();
+</script>
+
+</body></html>
